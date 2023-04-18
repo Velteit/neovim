@@ -1,0 +1,9 @@
+{
+    "diagnostics.disable": [
+        "unused-local"
+    ],
+    "diagnostics.globals": [
+        "vim",
+        "get_position"
+    ]
+}
