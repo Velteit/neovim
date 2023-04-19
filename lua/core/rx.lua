@@ -33,9 +33,6 @@ function Observer:new(o)
 end
 
 function Observer:next(input)
-  print("obs next")
-  print(input)
-  print(vim.inspect(input))
   self.on_next(input);
 end
 
@@ -62,9 +59,6 @@ function Observable:new(o)
 end
 
 function Observable:next(input)
-  print("obs next for")
-  print(input)
-  print(vim.inspect(input))
 
   self.listeners
     :foreach(function (obs)

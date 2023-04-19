@@ -1,10 +1,11 @@
 local cmp = require("cmp")
+local luasnip = require("luasnip");
 
 return {
   main = {
     snippet = {
       expand = function(args)
-        require("luasnip").lsp_expand(args.body)
+        luasnip.lsp_expand(args.body)
       end
     },
     window = {
@@ -19,8 +20,9 @@ return {
       ["<Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_next_item()
-        elseif require("luasnip").expand_or_jumpable() then
-          vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Plug>luasnip-expand-or-jump", true, true, true), "")
+        elseif luasnip.expand_or_jumpable() then
+          -- vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Plug>luasnip-expand-or-jump", true, true, true), "")
+          luasnip.expand_or_jump();
         else
           fallback()
         end
@@ -28,8 +30,9 @@ return {
       ["<S-Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_prev_item()
-        elseif require("luasnip").jumpable(-1) then
-          vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Plug>luasnip-jump-prev", true, true, true), "")
+        elseif luasnip.jumpable(-1) then
+          -- vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Plug>luasnip-jump-prev", true, true, true), "")
+          luasnip.jump(-1)
         else
           fallback()
         end
@@ -43,9 +46,6 @@ return {
       { name = "nvim_lsp_signature_help" },
       { name = "luasnip" }, -- For luasnip users.
     }, {
-      -- { name = "vsnip" }, -- For vsnip users.
-      -- { name = 'ultisnips' }, -- For ultisnips users.
-      -- { name = 'snippy' }, -- For snippy users.
       { name = "buffer" },
       { name = "path" }
     })
@@ -71,9 +71,9 @@ return {
     [":"] = {
       mapping = cmp.mapping.preset.cmdline(),
       sources = cmp.config.sources({
-        { name = "path" }, 
-      }, {
         { name = "cmdline" }
+      }, {
+        { name = "path" }
       })
     }
   }

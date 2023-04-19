@@ -3,7 +3,7 @@ local events = require("events");
 local event_names = require("events.names");
 local rx = require("core.rx");
 
-plugins = {
+local plugins = {
   "nvim-lua/plenary.nvim",
 
   {
@@ -17,6 +17,21 @@ plugins = {
     config = function(_, opts)
       require("nvim-treesitter.configs").setup(opts)
     end
+  },
+
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    dependencies =
+    {
+      "nvim-treesitter/nvim-treesitter",
+    },
+    opts = function ()
+      return require("configs.treesitter-context");
+    end,
+    config = function (_, opts)
+      require("treesitter-context").setup(opts);
+    end
+
   },
 
   {
@@ -94,6 +109,7 @@ plugins = {
             "hrsh7th/cmp-path",
             "hrsh7th/cmp-calc",
             "hrsh7th/cmp-git",
+            "hrsh7th/cmp-cmdline",
             "hrsh7th/cmp-nvim-lsp-document-symbol",
             "hrsh7th/cmp-nvim-lsp-signature-help"
           },
@@ -124,12 +140,10 @@ plugins = {
       mappings.add_mapping('n', ']d', { vim.diagnostic.goto_next })
       mappings.add_mapping('n', '<leader>q', { vim.diagnostic.setloclist })
 
-      require("events")
+      events
         :get(event_names.LspAttach, "UserLspConfig", {})
         :subscribe(rx.Observer:new {
           on_next = function(ev)
-            print("Started")
-            print(vim.inspect(ev))
             vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
 
             -- Buffer local mappings.
@@ -210,8 +224,17 @@ plugins = {
     end,
   },
 
-  { "easymotion/vim-easymotion", event = "BufEnter" },
+  {
+    "phaazon/hop.nvim",
+    event = "BufEnter",
+    config = function ()
+      require("hop").setup()
+    end
+
+  },
+
   { "elkowar/yuck.vim" , lazy = true },
+
   {
     "kylechui/nvim-surround",
     version = "*", -- Use for stability; omit to use `main` branch for the latest features
@@ -222,9 +245,26 @@ plugins = {
         })
     end
   },
+
+  {
+    "nvim-treesitter/nvim-treesitter-textobjects",
+    lazy = true,
+    event = "BufEnter",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+    },
+    opts = function ()
+      return require("configs.treesitter-textobjects")
+    end,
+    config = function(_, opts)
+      require("hlargs").setup(opts)
+    end
+  },
+
   {
     "m-demare/hlargs.nvim",
     lazy = true,
+    event = "BufEnter",
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
     },
@@ -232,6 +272,7 @@ plugins = {
       require("hlargs").setup()
     end
   },
+
   {
     "nvim-telescope/telescope.nvim",
     cmd = "Telescope",
@@ -251,6 +292,7 @@ plugins = {
     end,
 
   },
+
   {
     "desdic/agrolens.nvim",
     lazy = false,
@@ -266,6 +308,7 @@ plugins = {
       require("telescope").load_extension("agrolens")
     end
   },
+
   {
     'gorbit99/codewindow.nvim',
     lazy = true,
@@ -276,6 +319,7 @@ plugins = {
       require('codewindow').setup()
     end,
   },
+
   {
     "f-person/git-blame.nvim",
     lazy = false,
@@ -283,6 +327,7 @@ plugins = {
       vim.g.gitblame_display_virtual_text = 1
     end
   },
+
   {
     "nvim-tree/nvim-web-devicons",
     opts = function()
@@ -291,6 +336,7 @@ plugins = {
       require("nvim-web-devicons").setup(opts)
     end,
   },
+
   {
     "nvim-tree/nvim-tree.lua",
     cmd = { "NvimTreeToggle", "NvimTreeFocus" },
@@ -302,6 +348,7 @@ plugins = {
       require("nvim-tree").setup(opts)
     end
   },
+
   {
     "folke/which-key.nvim",
     keys = { "<leader>", '"', "'", "`", "c", "v" },
@@ -313,11 +360,34 @@ plugins = {
       -- TODO
     end,
     config = function(_, opts)
-      require("which-key").setup(opts)
+      require("which-key").setup(opts);
     end,
   },
+  {
+    "akinsho/bufferline.nvim",
+    dependencies = "nvim-tree/nvim-web-devicons",
+    init = function ()
+      mappings.add_mapping("n", "<leader>bn<CR>", { ":bnext", "Next buffer" });
+      mappings.add_mapping("n", "<leader>bp<CR>", { ":bprevious", "Previous buffer" });
+    end,
+    opts = function ()
+      return require("configs.bufferline");
+    end,
+    config = function()
+      require("bufferline").setup();
+    end
+  },
+  {
+    "tmillr/sos.nvim",
+    opts = function ()
+      return require("configs.sos");
+    end,
+    config = function (_, opts)
+      require("sos").setup(opts)
+    end
+  },
 
-
+  { "gpanders/editorconfig.nvim", lazy = true, event = "BufEnter" }
 }
 
 return plugins

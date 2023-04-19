@@ -14,7 +14,6 @@ function Events:get(event_name, group, group_opts)
     vim.api.nvim_create_autocmd(event_name, {
       group = vim.api.nvim_create_augroup(group, group_opts or {}),
       callback = function(ev)
-        print(vim.inspect(ev));
         self.events[event_name][group]:next(ev)
       end
     })
