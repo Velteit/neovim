@@ -1,3 +1,5 @@
 return {
-  LspAttach = "LspAttach"
+  LspAttach = "LspAttach",
+  FileType = "FileType",
+  BufNewFile = "BufNewFile"
 }

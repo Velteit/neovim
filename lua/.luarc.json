@@ -5,5 +5,19 @@
     "diagnostics.globals": [
         "vim",
         "get_position"
+    ],
+    "workspace.library": [
+        "/home/blackcat/.config/nvim",
+        "/home/blackcat/.local/share/nvim/lazy/lazy.nvim",
+        "/home/blackcat/.local/share/nvim/lazy/mason-lspconfig.nvim",
+        "/home/blackcat/.local/share/nvim/lazy/mason.nvim",
+        "/home/blackcat/.local/share/nvim/lazy/nvim-lspconfig",
+        "/home/blackcat/.local/share/nvim/lazy/nvim-treesitter",
+        "/home/blackcat/.local/share/nvim/lazy/nvim-treesitter-context",
+        "/home/blackcat/.local/share/nvim/lazy/hop.nvim",
+        "/usr/share/nvim/runtime",
+        "/usr/lib/nvim",
+        "/home/blackcat/.local/state/nvim/lazy/readme",
+        "${3rd}/luassert/library"
     ]
 }

@@ -1,19 +1,34 @@
-local M = {};
+local rx = require("core.rx")
+local List = require("core.list")
 
-M._mappings = {
-  n = {},
-  v = {},
-  i = {},
-  x = {},
-  t = {}
-};
+local M = {}
 
-function M.get_mappings()
-  return M._mappings
+function M:new(o)
+	o = o or {
+		events = rx.Observable:new()
+	};
+
+	setmetatable(o, self)
+
+	self.__index = self
+
+	return o
 end
 
-function M.add_mapping(mode, key, opts)
-  M._mappings[mode][key] = opts;
+-- M._mappings = {
+--   n = {},
+--   v = {},
+--   i = {},
+--   x = {},
+--   t = {},
+-- };
+
+function M:get_mappings()
+	return self.events
 end
 
-return M;
+function M:add_mapping(mode, key, opts)
+	self.events:next({ mode = mode, key = key, opts = opts })
+end
+
+return M

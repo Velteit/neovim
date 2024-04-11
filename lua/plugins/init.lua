@@ -1,8 +1,6 @@
-local mappings = require("mappings");
-local events = require("events");
-local event_names = require("events.names");
-local rx = require("core.rx");
+local mappings = require("mappings")
 
+-- TODO describe plugins
 local plugins = {
   "nvim-lua/plenary.nvim",
 
@@ -12,208 +10,89 @@ local plugins = {
     build = ":TSUpdate",
     cmd = { "TSInstall", "TSBufEnable", "TSBufDisable", "TSModuleInfo" },
     opts = function()
-      return require("configs.treesitter");
+      return require("configs.treesitter")
     end,
     config = function(_, opts)
       require("nvim-treesitter.configs").setup(opts)
-    end
+    end,
   },
 
   {
     "nvim-treesitter/nvim-treesitter-context",
-    dependencies =
-    {
-      "nvim-treesitter/nvim-treesitter",
-    },
-    opts = function ()
-      return require("configs.treesitter-context");
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    opts = function()
+      return require("configs.treesitter-context")
     end,
-    config = function (_, opts)
-      require("treesitter-context").setup(opts);
-    end
-
+    config = function(_, opts)
+      require("treesitter-context").setup(opts)
+    end,
   },
 
   {
     "lukas-reineke/indent-blankline.nvim",
     confit = function(_, opts)
-      require("indent_blankline").setup(opts)
-    end
+      require("indent_blankline").setup()
+    end,
   },
 
-  {
-    "neovim/nvim-lspconfig",
-    dependencies = {
-      {
-        "williamboman/mason.nvim",
-        opts = function()
-          return require("configs.mason")
-        end,
-        config = function(_, opts)
-          require("mason").setup(opts)
-        end
-      },
-      {
-        "williamboman/mason-lspconfig.nvim",
-        opts = function()
-          return require("configs.mason-lsp");
-        end,
-        config = function(_, opts)
-          require("mason-lspconfig").setup(opts)
-        end
-      },
-      -- format & linting
-      {
-        "jose-elias-alvarez/null-ls.nvim",
-        opts = function()
-          return require("configs.linters");
-        end,
-        config = function(_, opts)
-          require("null-ls").setup(opts)
-        end,
-      },
-      {
-        "hrsh7th/nvim-cmp",
-        event = "InsertEnter",
-        dependencies = {
-          {
-            -- snippet plugin
-            "L3MON4D3/LuaSnip",
-            dependencies = "rafamadriz/friendly-snippets",
-            opts = {
-              history = true,
-              updateevents = "TextChanged,TextChangedI"
-            },
-            config = function(_, opts)
-            end,
-          },
-          {
-            "windwp/nvim-autopairs",
-            opts = {
-              fast_wrap = {},
-              disable_filetype = { "TelescopePrompt", "vim" },
-            },
-            config = function(_, opts)
-              require("nvim-autopairs").setup(opts)
-
-              local cmp_autopairs = require "nvim-autopairs.completion.cmp"
-              require("cmp").event:on("confirm_done", cmp_autopairs.on_confirm_done())
-            end,
-          },
-
-          {
-            "saadparwaiz1/cmp_luasnip",
-            "hrsh7th/cmp-nvim-lua",
-            "hrsh7th/cmp-nvim-lsp",
-            "hrsh7th/cmp-buffer",
-            "hrsh7th/cmp-path",
-            "hrsh7th/cmp-calc",
-            "hrsh7th/cmp-git",
-            "hrsh7th/cmp-cmdline",
-            "hrsh7th/cmp-nvim-lsp-document-symbol",
-            "hrsh7th/cmp-nvim-lsp-signature-help"
-          },
-        },
-
-        opts = function()
-          return require("configs.cmp")
-        end,
-        config = function(_, opts)
-          local cmp = require("cmp")
-          -- print(vim.inspect(opts))
-
-          cmp.setup(opts.main)
-
-          for ft, config in pairs(opts.filetypes or {}) do
-            cmp.setup.filetype(ft, config or {})
-          end
-
-          for ch, config in pairs(opts.cmdline) do
-            cmp.setup.cmdline(ch, config)
-          end
-        end,
-      },
-    },
-    init = function()
-      mappings.add_mapping('n', '<leader>e', { vim.diagnostic.open_float })
-      mappings.add_mapping('n', '<leader>d', { vim.diagnostic.goto_prev })
-      mappings.add_mapping('n', ']d', { vim.diagnostic.goto_next })
-      mappings.add_mapping('n', '<leader>q', { vim.diagnostic.setloclist })
-
-      events
-        :get(event_names.LspAttach, "UserLspConfig", {})
-        :subscribe(rx.Observer:new {
-          on_next = function(ev)
-            vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-
-            -- Buffer local mappings.
-            -- See `:help vim.lsp.*` for documentation on any of the below functions
-            local opts = { buffer = ev.buf }
-
-            vim.keymap.set('n', '<leader>gD', vim.lsp.buf.declaration,  opts)
-            vim.keymap.set('n', '<leader>gd', vim.lsp.buf.definition, opts)
-            vim.keymap.set('n', '<leader>K', vim.lsp.buf.hover, opts)
-            vim.keymap.set('n', '<leader>gi', vim.lsp.buf.implementation, opts)
-            vim.keymap.set('n', '<leader>gr', vim.lsp.buf.references, opts)
-            vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-            vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
-            vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
-            vim.keymap.set('n', '<leader>wl', function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, opts)
-            vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
-            vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
-            vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-            vim.keymap.set('n', '<leader>f', function( ) vim.lsp.buf.format { async = true } end, opts)
-          end
-      })
-      -- vim.api.nvim_create_autocmd('LspAttach', {
-      --   group = vim.api.nvim_create_augroup('UserLspConfig', {}),
-      --   callback = function(ev)
-      --     -- Enable completion triggered by <c-x><c-o>
-      --     vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-      --
-      --     -- Buffer local mappings.
-      --     -- See `:help vim.lsp.*` for documentation on any of the below functions
-      --     local opts = { buffer = ev.buf }
-      --
-      --     vim.keymap.set('n', '<leader>gD', vim.lsp.buf.declaration,  opts)
-      --     vim.keymap.set('n', '<leader>gd', vim.lsp.buf.definition, opts)
-      --     vim.keymap.set('n', '<leader>K', vim.lsp.buf.hover, opts)
-      --     vim.keymap.set('n', '<leader>gi', vim.lsp.buf.implementation, opts)
-      --     vim.keymap.set('n', '<leader>gr', vim.lsp.buf.references, opts)
-      --     vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-      --     vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
-      --     vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
-      --     vim.keymap.set('n', '<leader>wl', function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, opts)
-      --     vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
-      --     vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
-      --     vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-      --     vim.keymap.set('n', '<leader>f', function( ) vim.lsp.buf.format { async = true } end, opts)
-      --
-      --   end,
-      -- })
-    end,
-    opts = function()
-      return require("configs.lsp");
-    end,
-    config = function (_, opts)
-      opts.apply_config(require("lspconfig"))
-    end
-
-  },
+  require("plugins.nvim-lspconfig"),
 
   {
     "numToStr/Comment.nvim",
     init = function()
-      mappings.add_mapping("n", "gcc", { function() require("Comment.api").toggle.linewise.current() end, "Toggle comment line" })
-      mappings.add_mapping("v", "gc", { "<ESC><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<CR>", "toggle comment" })
-    end
+      mappings:add_mapping("n", "gcc", {
+        function()
+          require("Comment.api").toggle.linewise.current()
+        end,
+        "Toggle comment line",
+      })
+      mappings:add_mapping(
+        "v",
+        "gc",
+        { "<ESC><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<CR>", "Toggle comment" }
+      )
+    end,
   },
 
   {
     "folke/tokyonight.nvim",
     config = function()
-      vim.cmd[[colorscheme tokyonight-moon]]
-    end
+      require("tokyonight").setup({
+        -- your configuration comes here
+        -- or leave it empty to use the default settings
+        style = "storm",        -- The theme comes in three styles, `storm`, `moon`, a darker variant `night` and `day`
+        light_style = "day",    -- The theme is used when the background is set to light
+        transparent = true,     -- Enable this to disable setting the background color
+        terminal_colors = true, -- Configure the colors used when opening a `:terminal` in [Neovim](https://github.com/neovim/neovim)
+        styles = {
+          -- Style to be applied to different syntax groups
+          -- Value is any valid attr-list value for `:help nvim_set_hl`
+          comments = { italic = true },
+          keywords = { italic = true },
+          functions = {},
+          variables = {},
+          -- Background styles. Can be "dark", "transparent" or "normal"
+          sidebars = "dark",              -- style for sidebars, see below
+          floats = "dark",                -- style for floating windows
+        },
+        sidebars = { "qf", "help" },      -- Set a darker background on sidebar-like windows. For example: `["qf", "vista_kind", "terminal", "packer"]`
+        day_brightness = 0.3,             -- Adjusts the brightness of the colors of the **Day** style. Number between 0 and 1, from dull to vibrant colors
+        hide_inactive_statusline = false, -- Enabling this option, will hide inactive statuslines and replace them with a thin border instead. Should work with the standard **StatusLine** and **LuaLine**.
+        dim_inactive = false,             -- dims inactive windows
+        lualine_bold = false,             -- When `true`, section headers in the lualine theme will be bold
+
+        --- You can override specific color groups to use other groups or a hex color
+        --- function will be called with a ColorScheme table
+        ---@param colors ColorScheme
+        on_colors = function(colors) end,
+
+        --- You can override specific highlights to use other groups or a hex color
+        --- function will be called with a Highlights and ColorScheme table
+        ---@param highlights Highlights
+        ---@param colors ColorScheme
+        on_highlights = function(highlights, colors) end,
+      })
+    end,
   },
 
   {
@@ -224,73 +103,70 @@ local plugins = {
     end,
   },
 
-  {
-    "phaazon/hop.nvim",
-    event = "BufEnter",
-    config = function ()
-      require("hop").setup()
-    end
+  require("plugins.hop"),
 
-  },
-
-  { "elkowar/yuck.vim" , lazy = true },
+  { "elkowar/yuck.vim",           lazy = true },
 
   {
     "kylechui/nvim-surround",
     version = "*", -- Use for stability; omit to use `main` branch for the latest features
     event = "VeryLazy",
     config = function()
-        require("nvim-surround").setup({
-            -- Configuration here, or leave empty to use defaults
-        })
-    end
+      require("nvim-surround").setup({
+        -- Configuration here, or leave empty to use defaults
+      })
+    end,
   },
 
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
     lazy = true,
     event = "BufEnter",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-    },
-    opts = function ()
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    opts = function()
       return require("configs.treesitter-textobjects")
     end,
     config = function(_, opts)
       require("hlargs").setup(opts)
-    end
+    end,
   },
 
   {
     "m-demare/hlargs.nvim",
     lazy = true,
     event = "BufEnter",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-    },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
       require("hlargs").setup()
-    end
+    end,
   },
 
   {
     "nvim-telescope/telescope.nvim",
     cmd = "Telescope",
     init = function()
-      mappings.add_mapping("n", "<leader>tt", { "<cmd> Telescope find_files <CR>", "find files" })
-      mappings.add_mapping("n", "<leader>ta", { "<cmd> Telescope find_files follow=true no_ignore=true hidden=true <CR>", "find all" })
-      mappings.add_mapping("n", "<leader>tw", { "<cmd> Telescope live_grep <CR>", "live grep" })
-      mappings.add_mapping("n", "<leader>tb", { "<cmd> Telescope buffers <CR>", "find buffers" })
-      mappings.add_mapping("n", "<leader>tz", { "<cmd> Telescope current_buffer_fuzzy_find <CR>", "find in current buffer" })
+      mappings:add_mapping("n", "<leader>tf", { "<cmd> Telescope find_files <CR>", "find files" })
+      mappings:add_mapping(
+        "n",
+        "<leader>ta",
+        { "<cmd> Telescope find_files follow=true no_ignore=true hidden=true <CR>", "find all" }
+      )
+      mappings:add_mapping("n", "<leader>tw", { "<cmd> Telescope live_grep <CR>", "live grep" })
+      mappings:add_mapping("n", "<leader>tb", { "<cmd> Telescope buffers <CR>", "find buffers" })
+      mappings:add_mapping(
+        "n",
+        "<leader>tz",
+        { "<cmd> Telescope current_buffer_fuzzy_find <CR>", "find in current buffer" }
+      )
 
       -- git
-      mappings.add_mapping("n", "<leader>tgc", { "<cmd> Telescope git_commits <CR>", "git commits" })
-      mappings.add_mapping("n", "<leader>tgs", { "<cmd> Telescope git_status <CR>", "git status" })
+      mappings:add_mapping("n", "<leader>tgc", { "<cmd> Telescope git_commits <CR>", "git commits" })
+      mappings:add_mapping("n", "<leader>tgs", { "<cmd> Telescope git_status <CR>", "git status" })
 
+      -- treesitter
+      mappings:add_mapping("n", "<leader>tt", { "<cmd> Telescope treesitter <CR>", "Treesitter find" })
       -- "<leader>pt" = { "<cmd> Telescope terms <CR>", "pick hidden term" },
-
     end,
-
   },
 
   {
@@ -302,21 +178,30 @@ local plugins = {
       "nvim-treesitter/nvim-treesitter",
     },
     init = function()
-      mappings.add_mapping("n", "<leader>tm", { "<cmd> Telescope agrolens query=functions <CR>", "Go to function" })
+      mappings:add_mapping(
+        "n",
+        "<leader>tm",
+        { "<cmd> Telescope agrolens query=functions <CR>", "Go to function" }
+      )
     end,
     config = function()
       require("telescope").load_extension("agrolens")
-    end
+    end,
   },
 
   {
-    'gorbit99/codewindow.nvim',
+    "gorbit99/codewindow.nvim",
     lazy = true,
     init = function()
-      mappings.add_mapping("n", "<leader>mm", { function() require("codewindow").toggle_minimap() end, "Open minimap" })
+      mappings:add_mapping("n", "<leader>mm", {
+        function()
+          require("codewindow").toggle_minimap()
+        end,
+        "Open minimap",
+      })
     end,
     config = function()
-      require('codewindow').setup()
+      require("codewindow").setup()
     end,
   },
 
@@ -325,13 +210,12 @@ local plugins = {
     lazy = false,
     config = function()
       vim.g.gitblame_display_virtual_text = 1
-    end
+    end,
   },
 
   {
     "nvim-tree/nvim-web-devicons",
-    opts = function()
-    end,
+    opts = function() end,
     config = function(_, opts)
       require("nvim-web-devicons").setup(opts)
     end,
@@ -341,53 +225,202 @@ local plugins = {
     "nvim-tree/nvim-tree.lua",
     cmd = { "NvimTreeToggle", "NvimTreeFocus" },
     init = function()
-      mappings.add_mapping("n", "<C-b>", { "<cmd> NvimTreeToggle <CR>", "toggle nvimtree" })
-      mappings.add_mapping("n", "<leader>ft", { "<cmd> NvimTreeFocus <CR>", "focus nvimtree" })
+      mappings:add_mapping("n", "<C-b>", { "<cmd> NvimTreeToggle <CR>", "toggle nvimtree" })
+      mappings:add_mapping("n", "<leader>ft", { "<cmd> NvimTreeFocus <CR>", "focus nvimtree" })
     end,
     config = function(_, opts)
       require("nvim-tree").setup(opts)
-    end
+    end,
   },
 
-  {
-    "folke/which-key.nvim",
-    keys = { "<leader>", '"', "'", "`", "c", "v" },
-    init = function()
-      mappings.add_mapping("n", "<leader>wK", { function() vim.cmd "WhichKey" end, "which-key all keymaps", })
-      mappings.add_mapping("n", "<leader>wk", { function() local input = vim.fn.input "WhichKey: " vim.cmd("WhichKey " .. input) end, "which-key query lookup", })
-    end,
-    opts = function()
-      -- TODO
-    end,
-    config = function(_, opts)
-      require("which-key").setup(opts);
-    end,
-  },
-  {
-    "akinsho/bufferline.nvim",
-    dependencies = "nvim-tree/nvim-web-devicons",
-    init = function ()
-      mappings.add_mapping("n", "<leader>bn<CR>", { ":bnext", "Next buffer" });
-      mappings.add_mapping("n", "<leader>bp<CR>", { ":bprevious", "Previous buffer" });
-    end,
-    opts = function ()
-      return require("configs.bufferline");
-    end,
-    config = function()
-      require("bufferline").setup();
-    end
-  },
+  -- {
+  --   "akinsho/bufferline.nvim",
+  --   dependencies = { "nvim-tree/nvim-web-devicons" },
+  --   init = function()
+  --   end,
+  --   opts = function()
+  --     return require("configs.bufferline")
+  --   end,
+  --   config = function(_, opts)
+  --     require("bufferline").setup(opts)
+  --   end,
+  -- },
+
   {
     "tmillr/sos.nvim",
-    opts = function ()
-      return require("configs.sos");
+    opts = function()
+      return require("configs.sos")
     end,
-    config = function (_, opts)
+    config = function(_, opts)
       require("sos").setup(opts)
-    end
+    end,
   },
 
-  { "gpanders/editorconfig.nvim", lazy = true, event = "BufEnter" }
+  { "gpanders/editorconfig.nvim", lazy = true, event = "BufEnter" },
+
+  {
+    "NvChad/nvim-colorizer.lua",
+    opts = function()
+      return require("configs.colorizer")
+    end,
+    config = function(_, opts)
+      require("colorizer").setup(opts)
+    end,
+  },
+
+  {
+    "filipdutescu/renamer.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function(_, opts)
+      require("renamer").setup()
+    end,
+  },
+
+  {
+    "cappyzawa/trim.nvim",
+    opts = function()
+      return require("configs.trim")
+    end,
+    config = function(_, opts)
+      require("trim").setup(opts)
+    end,
+  },
+
+  {
+    "folke/trouble.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    opts = function()
+      return require("configs.trouble")
+    end,
+    config = function(_, opts)
+      require("trouble").setup(opts)
+    end,
+  },
+
+  {
+    "Pocco81/high-str.nvim",
+    init = function()
+      for i = 0, 9 do
+        mappings:add_mapping(
+          "v",
+          "<leader>hs" .. i,
+          { "<ESC><cmd>HSHighlight " .. i .. " <CR>", "Highlight with " .. i .. " color" }
+        )
+        mappings:add_mapping(
+          "n",
+          "<leader>hs" .. i,
+          { "<cmd>HSHighlight " .. i .. " <CR>", "Highlight with " .. i .. " color" }
+        )
+      end
+
+      mappings:add_mapping("v", "<leader>hr", { "<ESC><cmd>HSRmSHighlight <CR>", "Remove Highlight" })
+      mappings:add_mapping("n", "<leader>hr", { "<cmd>HSRmHighlight <CR>", "Remove Highlight" })
+    end,
+    opts = function()
+      return require("configs.highstr")
+    end,
+    config = function(_, opts)
+      require("high-str").setup(opts)
+    end,
+  },
+
+  {
+    "iamcco/markdown-preview.nvim",
+    build = 'sh -c "cd app && yarn install && NODE_OPTIONS=--openssl-legacy-provider yarn build"',
+    lazy = true,
+    ft = { "markdown" },
+  },
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    init = function()
+      vim.o.timeout = true
+      vim.o.timeoutlen = 300
+    end,
+    opts = {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+    },
+  },
+  {
+    "utilyre/barbecue.nvim",
+    name = "barbecue",
+    version = "*",
+    dependencies = {
+      "SmiteshP/nvim-navic",
+      "nvim-tree/nvim-web-devicons", -- optional dependency
+    },
+    opts = {
+      -- configurations go here
+    },
+    config = function(_, opts)
+      vim.opt.updatetime = 200
+
+      require("barbecue").setup({
+        create_autocmd = false, -- prevent barbecue from updating itself automatically
+        theme = 'tokyonight',
+        attach_navic = false,
+      })
+
+      vim.api.nvim_create_autocmd({
+        "WinScrolled", -- or WinResized on NVIM-v0.9 and higher
+        "BufWinEnter",
+        "CursorHold",
+        "InsertLeave",
+
+        -- include this if you have set `show_modified` to `true`
+        "BufModifiedSet",
+      }, {
+        group = vim.api.nvim_create_augroup("barbecue.updater", {}),
+        callback = function()
+          require("barbecue.ui").update()
+        end,
+      })
+    end
+
+  },
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function(_, opts)
+      require('lualine').setup {
+        options = {
+          theme = 'tokyonight',
+        },
+        sections = {
+          lualine_a = { 'mode' },
+          lualine_b = { 'branch', 'diff', 'diagnostics' },
+          lualine_c = {},
+          lualine_x = { 'encoding', 'fileformat', 'filetype' },
+          lualine_y = { 'progress' },
+          lualine_z = { 'location' }
+        },
+        tabline = {
+          lualine_a = { 'tabs' },
+          lualine_b = { 'filename' },
+          lualine_c = {},
+          lualine_x = {},
+          lualine_y = { 'buffers' },
+          lualine_z = { 'searchcount' }
+        }
+      }
+    end
+
+  }
+  -- TODO after 30.04.2024
+  -- {
+  --   'Bekaboo/dropbar.nvim',
+  --   -- optional, but required for fuzzy finder support
+  --   dependencies = {
+  --     'nvim-telescope/telescope-fzf-native.nvim'
+  --   }
+  -- }
+
+  -- {
+  --   "sindrets/diffview.nvim",
+  --   dependencies = 'nvim-lua/plenary.nvim'
+  -- }
 }
 
 return plugins

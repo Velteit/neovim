@@ -1,6 +1,9 @@
 local List = require("core.list");
 local LangConfig = require("core.lang-config");
 
+--[[
+TODO different configs for semgrep for languages
+--]]
 local servers = List:new {
   inner = {
     -- lua
@@ -22,11 +25,13 @@ local servers = List:new {
               globals = { "vim" },
             },
             workspace = {
-              library = {
-                [vim.fn.expand "$VIMRUNTIME/lua"] = true,
-                [vim.fn.expand "$VIMRUNTIME/lua/vim/lsp"] = true,
-                [vim.fn.stdpath "data" .. "/lazy/lazy.nvim/lua/lazy"] = true,
-              },
+              library = vim.api.nvim_get_runtime_file("", true),
+              --   {
+              --   [vim.fn.expand "$VIMRUNTIME/lua"] = true,
+              --   [vim.fn.expand "$VIMRUNTIME/lua/vim/lsp"] = true,
+              --   [vim.fn.stdpath "data" .. "/lazy/lazy.nvim/lua/lazy"] = true,
+              --   []
+              -- },
               maxPreload = 100000,
               preloadFileSize = 10000,
             },
@@ -76,7 +81,9 @@ local servers = List:new {
         return {
           null_ls.builtins.diagnostics.staticcheck,
           null_ls.builtins.code_actions.impl,
-          null_ls.builtins.diagnostics.semgrep
+          null_ls.builtins.diagnostics.semgrep.with({
+            extra_args = { "--config=auto" }
+          })
         }
       end,
       enabled = false,
@@ -105,7 +112,9 @@ local servers = List:new {
           null_ls.builtins.diagnostics.checkstyle.with({
             extra_args = { "-c", "/google_checks.xml" }, -- or "/sun_checks.xml" or path to self written rules
           }),
-          null_ls.builtins.diagnostics.semgrep,
+          null_ls.builtins.diagnostics.semgrep.with({
+            extra_args = { "--config=auto" }
+          }),
           null_ls.builtins.formatting.google_java_format
         }
       end,
@@ -143,7 +152,10 @@ local servers = List:new {
         return {
           null_ls.builtins.code_actions.refactoring,
           null_ls.builtins.diagnostics.flake8,
-          null_ls.builtins.diagnostics.pycodestyle
+          null_ls.builtins.diagnostics.pycodestyle,
+          null_ls.builtins.diagnostics.semgrep.with({
+            extra_args = { "--config=auto", "--lang=python" }
+          })
         }
       end,
       enabled = true,
