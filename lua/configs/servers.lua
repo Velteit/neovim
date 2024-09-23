@@ -51,6 +51,17 @@ local servers = List:new {
       enabled = true,
       opts = {}
     },
+    LangConfig:new {
+      name = "codelldb",
+      filetypes = { "rust" },
+      -- null_ls = function(null_ls)
+      --   return {
+      --     null_ls.builtins.formatting.rustfmt
+      --   }
+      -- end,
+      enabled = false,
+      opts = {}
+    },
     -- dockerfile
     LangConfig:new {
       name = "dockerls",

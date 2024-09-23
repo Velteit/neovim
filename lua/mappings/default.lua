@@ -2,13 +2,13 @@ return {
 	n = {
 		["<Esc>"] = { ":noh <CR>", "Clear highlights" },
 
-		["<leader>sv"] = { ":vsplit<CR>", "Split verticaly" },
-		["<leader>sh"] = { ":split<CR>", "Split horizontaly" },
+		["<leader>sv"] = { ":Vexplore<CR>", "Split verticaly" },
+		["<leader>sh"] = { ":Hexplore<CR>", "Split horizontaly" },
 
-		["<leader>bl"] = { "<C-w>l", "Swith right" },
-		["<leader>bh"] = { "<C-w>h", "Swith left" },
-		["<leader>bk"] = { "<C-w>k", "Swith up" },
-		["<leader>bj"] = { "<C-w>j", "Swith down" },
+		["<leader>bl"] = { "<C-w>l", "Switch right" },
+		["<leader>bh"] = { "<C-w>h", "Switch left" },
+		["<leader>bk"] = { "<C-w>k", "Switch up" },
+		["<leader>bj"] = { "<C-w>j", "Switch down" },
 
 		["<leader>ml"] = { "<C-w>L", "Move right" },
 		["<leader>mh"] = { "<C-w>H", "Move left" },

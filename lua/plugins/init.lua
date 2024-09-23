@@ -406,7 +406,46 @@ local plugins = {
         }
       }
     end
-
+  },
+  {
+    "rcarriga/nvim-notify",
+    config = function(_, opts)
+      require("telescope").load_extension("notify")
+    end,
+    init = function()
+      vim.notify = require("notify")
+    end
+  },
+  {
+    "folke/todo-comments.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+    }
+  },
+  {
+    "folke/twilight.nvim",
+    opts = {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+    }
+  },
+  {
+    'nvimdev/dashboard-nvim',
+    event = 'VimEnter',
+    config = function()
+      require('dashboard').setup {
+        -- config
+      }
+    end,
+    dependencies = { { 'nvim-tree/nvim-web-devicons' } }
+  },
+  {
+    'declancm/cinnamon.nvim',
+    config = function() require('cinnamon').setup() end
   }
   -- TODO after 30.04.2024
   -- {
