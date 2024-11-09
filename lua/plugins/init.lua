@@ -3,6 +3,7 @@ local mappings = require("mappings")
 -- TODO describe plugins
 local plugins = {
   "nvim-lua/plenary.nvim",
+  "SmiteshP/nvim-navic",
 
   {
     "nvim-treesitter/nvim-treesitter",
@@ -343,43 +344,43 @@ local plugins = {
       -- refer to the configuration section below
     },
   },
-  {
-    "utilyre/barbecue.nvim",
-    name = "barbecue",
-    version = "*",
-    dependencies = {
-      "SmiteshP/nvim-navic",
-      "nvim-tree/nvim-web-devicons", -- optional dependency
-    },
-    opts = {
-      -- configurations go here
-    },
-    config = function(_, opts)
-      vim.opt.updatetime = 200
-
-      require("barbecue").setup({
-        create_autocmd = false, -- prevent barbecue from updating itself automatically
-        theme = 'tokyonight',
-        attach_navic = false,
-      })
-
-      vim.api.nvim_create_autocmd({
-        "WinScrolled", -- or WinResized on NVIM-v0.9 and higher
-        "BufWinEnter",
-        "CursorHold",
-        "InsertLeave",
-
-        -- include this if you have set `show_modified` to `true`
-        "BufModifiedSet",
-      }, {
-        group = vim.api.nvim_create_augroup("barbecue.updater", {}),
-        callback = function()
-          require("barbecue.ui").update()
-        end,
-      })
-    end
-
-  },
+  -- {
+  --   "utilyre/barbecue.nvim",
+  --   name = "barbecue",
+  --   version = "*",
+  --   dependencies = {
+  --     "SmiteshP/nvim-navic",
+  --     "nvim-tree/nvim-web-devicons", -- optional dependency
+  --   },
+  --   opts = {
+  --     -- configurations go here
+  --   },
+  --   config = function(_, opts)
+  --     vim.opt.updatetime = 200
+  --
+  --     require("barbecue").setup({
+  --       create_autocmd = false, -- prevent barbecue from updating itself automatically
+  --       theme = 'tokyonight',
+  --       attach_navic = false,
+  --     })
+  --
+  --     vim.api.nvim_create_autocmd({
+  --       "WinScrolled", -- or WinResized on NVIM-v0.9 and higher
+  --       "BufWinEnter",
+  --       "CursorHold",
+  --       "InsertLeave",
+  --
+  --       -- include this if you have set `show_modified` to `true`
+  --       "BufModifiedSet",
+  --     }, {
+  --       group = vim.api.nvim_create_augroup("barbecue.updater", {}),
+  --       callback = function()
+  --         require("barbecue.ui").update()
+  --       end,
+  --     })
+  --   end
+  --
+  -- },
   {
     'nvim-lualine/lualine.nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
@@ -446,15 +447,40 @@ local plugins = {
   {
     'declancm/cinnamon.nvim',
     config = function() require('cinnamon').setup() end
-  }
+  },
   -- TODO after 30.04.2024
-  -- {
-  --   'Bekaboo/dropbar.nvim',
-  --   -- optional, but required for fuzzy finder support
-  --   dependencies = {
-  --     'nvim-telescope/telescope-fzf-native.nvim'
-  --   }
-  -- }
+  {
+    'Bekaboo/dropbar.nvim',
+    -- optional, but required for fuzzy finder support
+    dependencies = {
+      'nvim-telescope/telescope-fzf-native.nvim'
+    },
+    config = function()
+      vim.ui.select = require('dropbar.utils.menu').select
+    end
+  },
+  {
+    "oskarrrrrrr/symbols.nvim",
+    config = function()
+      local r = require("symbols.recipes")
+      require("symbols").setup(r.DefaultFilters, r.AsciiSymbols, {
+        sidebar = {
+          open_direction = "try-right",
+          preview = {
+            show_always = true,
+            show_line_number = true
+          }
+        },
+
+        -- custom settings here
+        -- e.g. hide_cursor = false
+      })
+      -- vim.keymap.set("n", ",s", ":Symbols<CR>")
+      -- vim.keymap.set("n", ",S", ":SymbolsClose<CR>")
+      mappings:add_mapping("n", "<leader>so", { ":Symbols<CR>", "Open Symbols" })
+      mappings:add_mapping("n", "<leader>sc", { ":SymbolsClose<CR>", "Close symbols" })
+    end
+  }
 
   -- {
   --   "sindrets/diffview.nvim",

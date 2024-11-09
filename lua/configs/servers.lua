@@ -209,7 +209,7 @@ local servers = List:new {
     },
     -- typescript
     LangConfig:new {
-      name = "tsserver",
+      name = "ts_ls",
       filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "vue" },
       null_ls = function(null_ls)
         return {
