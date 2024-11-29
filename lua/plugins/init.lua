@@ -31,8 +31,11 @@ local plugins = {
 
   {
     "lukas-reineke/indent-blankline.nvim",
-    confit = function(_, opts)
-      require("indent_blankline").setup()
+    main = "ibl",
+    opts = {
+    },
+    config = function(_, opts)
+      require("ibl").setup(opts)
     end,
   },
 
@@ -70,8 +73,8 @@ local plugins = {
           -- Value is any valid attr-list value for `:help nvim_set_hl`
           comments = { italic = true },
           keywords = { italic = true },
-          functions = {},
-          variables = {},
+          functions = { bold = true },
+          variables = { italic = false, bold = false },
           -- Background styles. Can be "dark", "transparent" or "normal"
           sidebars = "dark",              -- style for sidebars, see below
           floats = "dark",                -- style for floating windows
@@ -79,7 +82,7 @@ local plugins = {
         sidebars = { "qf", "help" },      -- Set a darker background on sidebar-like windows. For example: `["qf", "vista_kind", "terminal", "packer"]`
         day_brightness = 0.3,             -- Adjusts the brightness of the colors of the **Day** style. Number between 0 and 1, from dull to vibrant colors
         hide_inactive_statusline = false, -- Enabling this option, will hide inactive statuslines and replace them with a thin border instead. Should work with the standard **StatusLine** and **LuaLine**.
-        dim_inactive = false,             -- dims inactive windows
+        dim_inactive = true,              -- dims inactive windows
         lualine_bold = false,             -- When `true`, section headers in the lualine theme will be bold
 
         --- You can override specific color groups to use other groups or a hex color
@@ -480,6 +483,122 @@ local plugins = {
       mappings:add_mapping("n", "<leader>so", { ":Symbols<CR>", "Open Symbols" })
       mappings:add_mapping("n", "<leader>sc", { ":SymbolsClose<CR>", "Close symbols" })
     end
+  },
+  {
+    "Dan7h3x/neaterm.nvim",
+    branch = "stable",
+    event = "VeryLazy",
+    opts = {
+      -- Terminal settings
+      shell = vim.o.shell,
+      float_width = 0.5,
+      float_height = 0.4,
+      move_amount = 3,
+      resize_amount = 2,
+      border = 'rounded',
+
+      -- Appearance
+      highlights = {
+        normal = 'Normal',
+        border = 'FloatBorder',
+        title = 'Title',
+      },
+
+      -- Window management
+      min_width = 20,
+      min_height = 3,
+
+      -- Default keymaps
+      keymaps = {
+        toggle = '<A-t>',
+        new_vertical = '<C-\\>',
+        new_horizontal = '<C-.>',
+        new_float = '<C-A-t>',
+        close = '<C-d>',
+        next = '<C-PageDown>',
+        prev = '<C-PageUp>',
+        move_up = '<C-A-Up>',
+        move_down = '<C-A-Down>',
+        move_left = '<C-A-Left>',
+        move_right = '<C-A-Right>',
+        resize_up = '<C-S-Up>',
+        resize_down = '<C-S-Down>',
+        resize_left = '<C-S-Left>',
+        resize_right = '<C-S-Right>',
+        focus_bar = '<C-A-b>',
+        repl_toggle = '<leader>rt',
+        repl_send_line = '<leader>rl',
+        repl_send_selection = '<leader>rs',
+        repl_send_buffer = '<leader>rb',
+        repl_clear = '<leader>rc',
+        repl_history = '<leader>rh',
+        repl_variables = '<leader>rv',
+        repl_restart = '<leader>rR',
+      },
+
+      -- REPL configurations
+      repl = {
+        float_width = 0.6,
+        float_height = 0.4,
+        save_history = true,
+        history_file = vim.fn.stdpath('data') .. '/neaterm_repl_history.json',
+        max_history = 100,
+        update_interval = 5000,
+      },
+
+      -- REPL language configurations
+      repl_configs = {
+        python = {
+          name = "Python (IPython)",
+          cmd = "ipython --no-autoindent --colors='Linux'",
+          startup_cmds = {
+            "import sys",
+            "sys.ps1 = 'In []: '",
+            "sys.ps2 = '   ....: '",
+          },
+          get_variables_cmd = "whos",
+          inspect_variable_cmd = "?",
+          exit_cmd = "exit()",
+        },
+        r = {
+          name = "R (Radian)",
+          cmd = "radian",
+          startup_cmds = {
+            "options(width = 80)",
+            "options(prompt = 'R> ')",
+          },
+          get_variables_cmd = "ls.str()",
+          inspect_variable_cmd = "str(",
+          exit_cmd = "q(save='no')",
+        },
+        lua = {
+          name = "Lua",
+          cmd = "lua",
+          exit_cmd = "os.exit()",
+        },
+        node = {
+          name = "Node.js",
+          cmd = "node",
+          get_variables_cmd = "Object.keys(global)",
+          exit_cmd = ".exit",
+        },
+        sh = {
+          name = "Shell",
+          cmd = vim.o.shell,
+          startup_cmds = {
+            "PS1='$ '",
+            "TERM=xterm-256color",
+          },
+          get_variables_cmd = "set",
+          inspect_variable_cmd = "echo $",
+          exit_cmd = "exit",
+        },
+      },
+    },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "ibhagwan/fzf-lua",
+    },
   }
 
   -- {
